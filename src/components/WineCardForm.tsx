@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { WineCard, TasteLevel, DEFAULT_TASTES } from '../types';
 import { Wine, ImagePlus, Trash2, Star, Barcode, Image as ImageIcon, Camera } from 'lucide-react';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const WineBottle = ({ size = 18 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -55,13 +56,30 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
   // -------------------------
   // メニュー操作と画像アップロード処理
   // -------------------------
-  const handleBarcodeClick = () => {
+  const [showScanner, setShowScanner] = useState(false);
+
+  const startScanner = () => {
     setShowImageMenu(false);
-    // TODO html5-qrcode で画像入力を導入
-    const code = window.prompt('JANコードを入力してください\n（例: 49028...）', card.janCode || '');
-    if (code !== null) {
-      setCard({ ...card, janCode: code });
-    }
+    setShowScanner(true);
+    
+    // カメラ起動処理
+    const scanner = new Html5QrcodeScanner(
+      "reader", 
+      { fps: 10, qrbox: { width: 250, height: 100 } },
+      /* verbose= */ false
+    );
+
+    scanner.render((decodedText) => {
+      setCard({ ...card, janCode: decodedText });
+      setShowScanner(false);
+      scanner.clear();
+    }, (err) => {
+      // 読み取りエラー
+    });
+  };
+
+  const handleBarcodeClick = () => {
+    startScanner();
   };
 
   const handleGalleryClick = () => {
@@ -248,6 +266,19 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
             >
               <ImagePlus size={24} />
             </button>
+
+            {/* バーコードスキャナーモーダル */}
+            {showScanner && (
+              <div className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-4">
+                <div id="reader" className="w-full max-w-sm bg-white"></div>
+                <button 
+                  onClick={() => { setShowScanner(false); window.location.reload(); }} 
+                  className="mt-4 px-6 py-2 bg-red-600 text-white rounded"
+                >
+                  キャンセル
+                </button>
+              </div>
+            )}
             
             {showImageMenu && (
               <div className="absolute bottom-full left-0 mb-2 w-56 bg-white border border-gray-300 rounded shadow-lg text-sm z-10 overflow-hidden font-sans">
