@@ -8,8 +8,8 @@ export class WineDatabase extends Dexie {
   constructor() {
     super('WineDatabase');
     this.version(1).stores({
-      wineLists: 'listId, isMyList',
-      wineCards: 'id, janCode, name, country, grapes'
+      wineLists: 'id',
+      wineCards: 'id, listId, janCode, name, country, grapes'
     });
   }
 }

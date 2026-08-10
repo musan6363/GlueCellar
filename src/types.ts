@@ -2,6 +2,7 @@ export type TasteLevel = 0 | 1 | 2;
 
 export interface WineCard {
   id: string;
+  listId: string;
   janCode?: string;
   
   name: string;
@@ -22,12 +23,10 @@ export interface WineCard {
 }
 
 export interface WineList {
-  listId: string;
-  listName: string;
-  ownerName: string;
+  id: string;
+  name: string;
   isMyList: boolean;
-  tasteMaster: string[];
-  cards: WineCard[];
+  createdAt: string;
 }
 
 export const DEFAULT_TASTES = [
