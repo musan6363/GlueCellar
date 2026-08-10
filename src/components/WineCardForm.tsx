@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { WineCard, TasteLevel, DEFAULT_TASTES } from '../types';
-import { Wine, ImagePlus, Trash2 } from 'lucide-react'; // GlassWaterを削除済み
+import { Wine, ImagePlus, Trash2, Star } from 'lucide-react'; // GlassWaterを削除済み
 
 // ワインボトルアイコン（追加済み）
 const WineBottle = ({ size = 18 }) => (
@@ -25,7 +25,7 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
     grapes: '',
     glassCount: 0,
     bottleCount: 0,
-    rating5: 3,
+    rating5: 0,
     tastes: {},
     memo: '',
     ...initialData
@@ -91,19 +91,39 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
         </div>
       </div>
 
-      {/* 飲用回数カウンター */}
-      <div className="flex gap-6 justify-end items-center my-2">
-        <div className="flex items-center gap-2">
-          <WineBottle size={18} />
-          <button onClick={() => updateCount('bottle', -1)} className="px-2 border border-gray-500 rounded rounded-full">-</button>
-          <span className="text-lg w-4 text-center">{card.bottleCount}</span>
-          <button onClick={() => updateCount('bottle', 1)} className="px-2 border border-gray-500 rounded rounded-full">+</button>
+      {/* 評価と飲用回数カウンター */}
+      <div className="flex flex-wrap gap-y-3 justify-between items-center my-3 border-b border-gray-400/50 pb-3">
+        {/* 左側：5段階評価 */}
+        <div className="flex items-center">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              onClick={() => setCard({ ...card, rating5: card.rating5 === star ? 0 : star })}
+              className={`p-1 transition-colors ${
+                star <= (card.rating5 || 0)
+                  ? 'text-orange-700'
+                  : 'text-gray-400'
+              }`}
+            >
+              <Star size={20} strokeWidth={1.5} fill={star <= (card.rating5 || 0) ? "currentColor" : "none"} />
+            </button>
+          ))}
         </div>
-        <div className="flex items-center gap-2">
-          <Wine size={18} />
-          <button onClick={() => updateCount('glass', -1)} className="px-2 border border-gray-500 rounded rounded-full">-</button>
-          <span className="text-lg w-4 text-center">{card.glassCount}</span>
-          <button onClick={() => updateCount('glass', 1)} className="px-2 border border-gray-500 rounded rounded-full">+</button>
+
+        {/* 右側：ボトルとグラスの回数 */}
+        <div className="flex gap-3 sm:gap-4 items-center ml-auto">
+          <div className="flex items-center gap-1">
+            <WineBottle size={18} />
+            <button onClick={() => updateCount('bottle', -1)} className="px-2 border border-gray-500 rounded-full">-</button>
+            <span className="text-lg w-4 text-center">{card.bottleCount}</span>
+            <button onClick={() => updateCount('bottle', 1)} className="px-2 border border-gray-500 rounded-full">+</button>
+          </div>
+          <div className="flex items-center gap-1">
+            <Wine size={18} />
+            <button onClick={() => updateCount('glass', -1)} className="px-2 border border-gray-500 rounded-full">-</button>
+            <span className="text-lg w-4 text-center">{card.glassCount}</span>
+            <button onClick={() => updateCount('glass', 1)} className="px-2 border border-gray-500 rounded-full">+</button>
+          </div>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 // src/App.tsx の実装
 import React, { useState } from 'react';
 import { WineCardForm } from './components/WineCardForm';
-import { Menu, Plus, Wine } from 'lucide-react';
+import { Menu, Plus, Wine, Star } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db';
 import { WineCard, DEFAULT_TASTES } from './types'; // DEFAULT_TASTES を追加
@@ -136,16 +136,32 @@ function App() {
                       </div>
                     </div>
 
-                    <div className="flex gap-6 justify-end items-center my-2">
-                      <div className="flex items-center gap-2">
-                        <WineBottle size={18} />
-                        <span className="text-lg w-4 text-center">{card.bottleCount || 0}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Wine size={18} />
-                        <span className="text-lg w-4 text-center">{card.glassCount || 0}</span>
-                      </div>
-                    </div>
+                    {/* 評価と飲用回数カウンター */}
+                     <div className="flex justify-between items-center my-2 border-b border-gray-400/50 pb-2">
+                       {/* 左側：5段階評価 */}
+                       <div className="flex items-center gap-1">
+                         {[1, 2, 3, 4, 5].map((star) => (
+                           <div
+                             key={star}
+                             className={star <= (card.rating5 || 0) ? 'text-orange-700' : 'text-gray-400'}
+                           >
+                             <Star size={18} strokeWidth={1.5} fill={star <= (card.rating5 || 0) ? "currentColor" : "none"} />
+                           </div>
+                         ))}
+                       </div>
+
+                       {/* 右側：ボトルとグラスの回数 */}
+                       <div className="flex gap-6 items-center">
+                         <div className="flex items-center gap-2">
+                           <WineBottle size={18} />
+                           <span className="text-lg w-4 text-center">{card.bottleCount || 0}</span>
+                         </div>
+                         <div className="flex items-center gap-2">
+                           <Wine size={18} />
+                           <span className="text-lg w-4 text-center">{card.glassCount || 0}</span>
+                         </div>
+                       </div>
+                     </div>
 
                     <div>
                       <span className="text-sm font-bold opacity-70 block mb-2">Tastes</span>
