@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    /* フォントを Noto Sans JP に変更 */
+    font-family: 'Noto Sans JP', sans-serif;
+    background-color: #1a1a1a;
+    color: #333;
+  }
+}
+
+@layer utilities {
+  /* クラフト紙の質感をCSSで再現 */
+  .bg-craft-paper {
+    background-color: #d4c4b7;
+    background-image: 
+      radial-gradient(#c2b2a3 1px, transparent 1px),
+      radial-gradient(#c2b2a3 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.3);
+  }
+
+  /* Tasteの楕円形の手書き風ボーダー */
+  .taste-oval {
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  }
+}
+
+/* Cover Flow用のアニメーションクラス */
+.cover-flow-container {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+.cover-flow-item {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
