@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { WineCard, TasteLevel, DEFAULT_TASTES } from '../types';
-import { Wine, ImagePlus, Trash2, Star } from 'lucide-react'; // GlassWaterを削除済み
+import { Wine, ImagePlus, Trash2, Star, Barcode, Image as ImageIcon, Camera } from 'lucide-react';
 
-// ワインボトルアイコン（追加済み）
 const WineBottle = ({ size = 18 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M10 2v5a3 3 0 0 0-2 3v10a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V10a3 3 0 0 0-2-3V2z" />
@@ -15,7 +14,7 @@ interface Props {
   initialData?: Partial<WineCard>;
   onSave: (data: Partial<WineCard>) => void;
   onDelete?: () => void;
-  onCancel: () => void; // ← 新規追加
+  onCancel: () => void;
 }
 
 export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, onCancel }) => {
@@ -28,31 +27,83 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
     rating5: 0,
     tastes: {},
     memo: '',
+    images: [],
+    janCode: '',
     ...initialData
   });
+
+  // メニューの開閉状態と、ファイル入力用の参照（Ref）
+  const [showImageMenu, setShowImageMenu] = useState(false);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleTasteToggle = (taste: string) => {
     setCard(prev => {
       const currentLevel = prev.tastes?.[taste] || 0;
       const nextLevel = ((currentLevel + 1) % 3) as TasteLevel;
-      return {
-        ...prev,
-        tastes: { ...prev.tastes, [taste]: nextLevel }
-      };
+      return { ...prev, tastes: { ...prev.tastes, [taste]: nextLevel } };
     });
   };
 
   const updateCount = (type: 'glass' | 'bottle', delta: number) => {
     setCard(prev => {
       const current = type === 'glass' ? (prev.glassCount || 0) : (prev.bottleCount || 0);
-      const next = Math.max(0, current + delta);
-      return { ...prev, [type === 'glass' ? 'glassCount' : 'bottleCount']: next };
+      return { ...prev, [type === 'glass' ? 'glassCount' : 'bottleCount']: Math.max(0, current + delta) };
     });
+  };
+
+  // -------------------------
+  // メニュー操作と画像アップロード処理
+  // -------------------------
+  const handleBarcodeClick = () => {
+    setShowImageMenu(false);
+    // TODO html5-qrcode で画像入力を導入
+    const code = window.prompt('JANコードを入力してください\n（例: 49028...）', card.janCode || '');
+    if (code !== null) {
+      setCard({ ...card, janCode: code });
+    }
+  };
+
+  const handleGalleryClick = () => {
+    setShowImageMenu(false);
+    galleryInputRef.current?.click();
+  };
+
+  const handleCameraClick = () => {
+    setShowImageMenu(false);
+    cameraInputRef.current?.click();
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string;
+        const currentImages = card.images || [];
+        if (currentImages.length < 2) {
+          setCard({ ...card, images: [...currentImages, base64] });
+        } else {
+          alert('登録できる画像は2枚までです');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    // 同じファイルを選び直せるように入力をリセット
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = (card.images || []).filter((_, i) => i !== index);
+    setCard({ ...card, images: newImages });
   };
 
   return (
     <div className="w-full max-w-md mx-auto bg-craft-paper p-6 relative flex flex-col gap-4 text-gray-800 border-t-[12px] border-[#eaddcf] shadow-xl h-[85vh] overflow-y-auto">
-      {/* マスキングテープ */}
+      {/* 隠しファイル入力（ReactのRefを利用してボタンから呼び出します） */}
+      <input type="file" accept="image/*" ref={galleryInputRef} onChange={handleImageUpload} className="hidden" />
+      <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} onChange={handleImageUpload} className="hidden" />
+
       <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#eaddcf] opacity-80 rotate-[-2deg]"></div>
 
       {/* ヘッダー情報 */}
@@ -89,28 +140,30 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
             onChange={e => setCard({...card, grapes: e.target.value})}
           />
         </div>
+
+        {/* JANコードが登録されている場合のみ表示 */}
+        {card.janCode && (
+          <div className="flex items-end gap-2 border-b border-gray-400 pb-1">
+            <span className="text-sm font-bold opacity-70">JAN</span>
+            <span className="flex-1 bg-transparent outline-none text-lg font-mono tracking-widest">{card.janCode}</span>
+          </div>
+        )}
       </div>
 
       {/* 評価と飲用回数カウンター */}
       <div className="flex flex-wrap gap-y-3 justify-between items-center my-3 border-b border-gray-400/50 pb-3">
-        {/* 左側：5段階評価 */}
         <div className="flex items-center">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
               onClick={() => setCard({ ...card, rating5: card.rating5 === star ? 0 : star })}
-              className={`p-1 transition-colors ${
-                star <= (card.rating5 || 0)
-                  ? 'text-orange-700'
-                  : 'text-gray-400'
-              }`}
+              className={`p-1 transition-colors ${star <= (card.rating5 || 0) ? 'text-orange-700' : 'text-gray-400'}`}
             >
               <Star size={20} strokeWidth={1.5} fill={star <= (card.rating5 || 0) ? "currentColor" : "none"} />
             </button>
           ))}
         </div>
 
-        {/* 右側：ボトルとグラスの回数 */}
         <div className="flex gap-3 sm:gap-4 items-center ml-auto">
           <div className="flex items-center gap-1">
             <WineBottle size={18} />
@@ -161,31 +214,62 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
         />
       </div>
 
+      {/* 追加された画像のサムネイル表示 */}
+      {(card.images && card.images.length > 0) && (
+        <div className="flex gap-4 mt-2">
+          {card.images.map((img, i) => (
+            <div key={i} className="relative">
+              <img src={img} alt={`wine-${i}`} className="w-20 h-20 object-cover border border-gray-500 rounded shadow-sm" />
+              <button 
+                onClick={() => removeImage(i)} 
+                className="absolute -top-2 -right-2 bg-gray-800 text-white rounded-full p-1 shadow hover:bg-red-700"
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* アクションボタン */}
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex gap-3">
-          {/* onDeleteが渡されている（＝既存データ）時のみゴミ箱を表示 */}
+      <div className="flex justify-between items-center mt-4 pb-4">
+        <div className="flex gap-2">
           {onDelete && (
             <button onClick={onDelete} className="p-2 text-red-800/70 hover:bg-red-800/10 rounded">
               <Trash2 size={24} />
             </button>
           )}
-          <button className="p-2 text-gray-700 hover:bg-gray-800/10 rounded">
-            <ImagePlus size={24} />
-          </button>
+          
+          {/* 画像追加メニュー */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowImageMenu(!showImageMenu)}
+              className="p-2 text-gray-700 hover:bg-gray-800/10 rounded bg-[#c2b2a3]/30"
+            >
+              <ImagePlus size={24} />
+            </button>
+            
+            {showImageMenu && (
+              <div className="absolute bottom-full left-0 mb-2 w-56 bg-white border border-gray-300 rounded shadow-lg text-sm z-10 overflow-hidden font-sans">
+                <button onClick={handleBarcodeClick} className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-3 border-b border-gray-200">
+                  <Barcode size={18} /> バーコードを記録
+                </button>
+                <button onClick={handleGalleryClick} className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-3 border-b border-gray-200">
+                  <ImageIcon size={18} /> フォルダから選ぶ
+                </button>
+                <button onClick={handleCameraClick} className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-3">
+                  <Camera size={18} /> カメラで撮る
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+        
         <div className="flex gap-3">
-          {/* キャンセルボタンを追加 */}
-          <button 
-            onClick={onCancel}
-            className="px-4 py-2 text-gray-700 hover:bg-gray-800/10 rounded font-bold"
-          >
+          <button onClick={onCancel} className="px-4 py-2 text-gray-700 hover:bg-gray-800/10 rounded font-bold">
             閉じる
           </button>
-          <button 
-            onClick={() => onSave(card)}
-            className="px-6 py-2 bg-gray-800 text-white rounded font-bold shadow"
-          >
+          <button onClick={() => onSave(card)} className="px-6 py-2 bg-gray-800 text-white rounded font-bold shadow">
             保存する
           </button>
         </div>
