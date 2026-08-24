@@ -23,7 +23,7 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install dependencies
-        run: pnpm install --ignore-minimum-release-age
+        run: pnpm install
 
       - name: Build
         run: pnpm build
