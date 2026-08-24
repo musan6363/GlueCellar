@@ -73,7 +73,7 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
       setCard({ ...card, janCode: decodedText });
       setShowScanner(false);
       scanner.clear();
-    }, (err) => {
+    }, (_err) => {
       // 読み取りエラー
     });
   };
