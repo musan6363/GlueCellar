@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { WineCard, TasteLevel, DEFAULT_TASTES } from '../types';
 import { Wine, ImagePlus, Trash2, Star, Barcode, Image as ImageIcon, Camera } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
@@ -58,28 +58,37 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
   // -------------------------
   const [showScanner, setShowScanner] = useState(false);
 
-  const startScanner = () => {
-    setShowImageMenu(false);
-    setShowScanner(true);
-    
-    // カメラ起動処理
-    const scanner = new Html5QrcodeScanner(
-      "reader", 
-      { fps: 10, qrbox: { width: 250, height: 100 } },
-      /* verbose= */ false
-    );
+  // showScanner が true になって画面が描画された後にスキャナーを起動する
+  useEffect(() => {
+    if (showScanner) {
+      const scanner = new Html5QrcodeScanner(
+        "reader", 
+        { fps: 10, qrbox: { width: 250, height: 100 } },
+        false
+      );
 
-    scanner.render((decodedText) => {
-      setCard({ ...card, janCode: decodedText });
-      setShowScanner(false);
-      scanner.clear();
-    }, (_err) => {
-      // 読み取りエラー
-    });
-  };
+      scanner.render(
+        (decodedText) => {
+          // 読み取り成功時
+          setCard((prev) => ({ ...prev, janCode: decodedText }));
+          setShowScanner(false);
+          scanner.clear();
+        }, 
+        (_err) => {
+          // 読み取り中（エラーは無視）
+        }
+      );
+
+      // モーダルが閉じたときにカメラを安全にオフにするクリーンアップ処理
+      return () => {
+        scanner.clear().catch(e => console.error("Scanner cleanup failed", e));
+      };
+    }
+  }, [showScanner]);
 
   const handleBarcodeClick = () => {
-    startScanner();
+    setShowImageMenu(false);
+    setShowScanner(true);
   };
 
   const handleGalleryClick = () => {
