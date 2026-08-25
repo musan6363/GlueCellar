@@ -21,6 +21,7 @@ function App() {
   
   const [currentListId, setCurrentListId] = useState<string>('default-list-id');
   const importInputRef = useRef<HTMLInputElement>(null);
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const initDB = async () => {
@@ -331,6 +332,23 @@ function App() {
                        <span className="absolute -top-3 left-2 bg-transparent text-sm font-bold opacity-70 bg-[#d4c4b7] px-1">memo</span>
                        <div className="mt-2 leading-relaxed whitespace-pre-wrap">{card.memo}</div>
                      </div>
+
+                     {(card.images && card.images.length > 0) && (
+                       <div className="flex gap-4 mt-2">
+                         {card.images.map((img, i) => (
+                           <div 
+                             key={i} 
+                             className="relative cursor-pointer hover:opacity-80 transition-opacity"
+                             onClick={(e) => { 
+                               e.stopPropagation(); // カード編集画面が開くのを防ぐ
+                               setExpandedImage(img); 
+                             }}
+                           >
+                             <img src={img} alt={`wine-${i}`} className="w-20 h-20 object-cover border border-gray-500 rounded shadow-sm" />
+                           </div>
+                         ))}
+                       </div>
+                     )}
                   </div>
                 </div>
               ))
@@ -347,6 +365,16 @@ function App() {
         >
           <Plus size={32} />
         </button>
+      )}
+
+      {/* 画像拡大ポップアップ */}
+      {expandedImage && (
+        <div 
+          className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 cursor-pointer"
+          onClick={(e) => { e.stopPropagation(); setExpandedImage(null); }}
+        >
+          <img src={expandedImage} alt="Expanded" className="max-w-full max-h-full object-contain rounded shadow-2xl" />
+        </div>
       )}
     </div>
   );

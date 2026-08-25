@@ -57,6 +57,7 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
   // メニュー操作と画像アップロード処理
   // -------------------------
   const [showScanner, setShowScanner] = useState(false);
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   // showScanner が true になって画面が描画された後にスキャナーを起動する
   useEffect(() => {
@@ -245,10 +246,14 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
       {(card.images && card.images.length > 0) && (
         <div className="flex gap-4 mt-2">
           {card.images.map((img, i) => (
-            <div key={i} className="relative">
+            <div 
+              key={i} 
+              className="relative cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => setExpandedImage(img)}
+            >
               <img src={img} alt={`wine-${i}`} className="w-20 h-20 object-cover border border-gray-500 rounded shadow-sm" />
               <button 
-                onClick={() => removeImage(i)} 
+                onClick={(e) => { e.stopPropagation(); removeImage(i); }} 
                 className="absolute -top-2 -right-2 bg-gray-800 text-white rounded-full p-1 shadow hover:bg-red-700"
               >
                 <Trash2 size={12} />
@@ -314,6 +319,15 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
           </button>
         </div>
       </div>
+      {/* 画像拡大ポップアップ */}
+      {expandedImage && (
+        <div 
+          className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 cursor-pointer"
+          onClick={() => setExpandedImage(null)}
+        >
+          <img src={expandedImage} alt="Expanded" className="max-w-full max-h-full object-contain rounded shadow-2xl" />
+        </div>
+      )}
     </div>
   );
 };
