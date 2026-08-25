@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactGA from "react-ga4";
 import { WineCardForm } from './components/WineCardForm';
 import { Menu, Plus, Wine, Star, ChevronDown, Pencil, Download, Upload, Trash2 } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -58,8 +59,10 @@ function App() {
       await db.wineCards.put(newCard);
       setView('gallery');
       setEditingCard(undefined);
+      ReactGA.event({ category: "Card", action: "Save" });
     } catch (error) {
       alert("保存に失敗しました");
+      ReactGA.event({ category: "Error", action: "Save failed" });
     }
   };
 
@@ -68,6 +71,7 @@ function App() {
       await db.wineCards.delete(id);
       setView('gallery');
       setEditingCard(undefined);
+      ReactGA.event({ category: "Card", action: "Delete" });
     }
   };
 
@@ -84,6 +88,7 @@ function App() {
   const handleDeleteList = async (id: string, name: string) => {
     if (lists.length <= 1) {
       alert('最後のリストは削除できません。');
+      ReactGA.event({ category: "Warning", action: "Try to delete last list" });
       return;
     }
     
@@ -103,6 +108,7 @@ function App() {
         }
       }
     }
+    ReactGA.event({ category: "List", action: "Delete" });
   };
 
   // -------------------------
@@ -132,6 +138,8 @@ function App() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    ReactGA.event({ category: "List", action: "Export" });
   };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,10 +176,13 @@ function App() {
         alert(`「${newList.name}」をインポートしました！`);
       } catch (err) {
         alert("ファイルの読み込みに失敗しました。正しいJSONファイルを選択してください。");
+        ReactGA.event({ category: "Error", action: "Uploaded unexpected json file" });
       }
     };
     reader.readAsText(file);
     e.target.value = ''; 
+
+    ReactGA.event({ category: "List", action: "Import" });
   };
 
   return (

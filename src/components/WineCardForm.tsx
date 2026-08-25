@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactGA from "react-ga4";
 import { WineCard, TasteLevel, DEFAULT_TASTES } from '../types';
 import { Wine, ImagePlus, Trash2, Star, Barcode, Image as ImageIcon, Camera } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
@@ -74,6 +75,7 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
           setCard((prev) => ({ ...prev, janCode: decodedText }));
           setShowScanner(false);
           scanner.clear();
+          ReactGA.event({ category: "Scanner", action: "Barcode Scanned" });
         }, 
         (_err) => {
           // 読み取り中（エラーは無視）
@@ -90,16 +92,19 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
   const handleBarcodeClick = () => {
     setShowImageMenu(false);
     setShowScanner(true);
+    ReactGA.event({ category: "Media", action: "Try barcode" });
   };
 
   const handleGalleryClick = () => {
     setShowImageMenu(false);
     galleryInputRef.current?.click();
+    ReactGA.event({ category: "Media", action: "Use Gallery" });
   };
 
   const handleCameraClick = () => {
     setShowImageMenu(false);
     cameraInputRef.current?.click();
+    ReactGA.event({ category: "Media", action: "Use Camera" });
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,6 +118,7 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
           setCard({ ...card, images: [...currentImages, base64] });
         } else {
           alert('登録できる画像は2枚までです');
+          ReactGA.event({ category: "Warning", action: "Try submit extra media" });
         }
       };
       reader.readAsDataURL(file);
@@ -124,6 +130,7 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
   const removeImage = (index: number) => {
     const newImages = (card.images || []).filter((_, i) => i !== index);
     setCard({ ...card, images: newImages });
+    ReactGA.event({ category: "Media", action: "Remove image" });
   };
 
   return (
