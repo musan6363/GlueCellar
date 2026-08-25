@@ -271,18 +271,18 @@ function App() {
                   <div className="bg-craft-paper p-6 relative flex flex-col gap-4 text-gray-800 border-t-[12px] border-[#eaddcf] shadow-xl h-[70vh] overflow-y-auto">
                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#eaddcf] opacity-80 rotate-[-2deg]"></div>
                      
-                     <div className="flex flex-col gap-3">
-                       <div className="flex items-end gap-2 border-b border-gray-400 pb-1">
-                         <span className="text-sm font-bold opacity-70">Name</span>
-                         <span className="flex-1 text-3xl font-bold whitespace-nowrap overflow-hidden text-ellipsis">{card.name || ' '}</span>
+                     <div className="flex flex-col gap-2">
+                       <div className="flex flex-col border-b border-gray-400 pb-1">
+                         <span className="text-xs font-bold opacity-70">Name</span>
+                         <span className="w-full text-2xl font-bold whitespace-nowrap overflow-hidden text-ellipsis">{card.name || ' '}</span>
                        </div>
-                       <div className="flex items-end gap-2 border-b border-gray-400 pb-1">
-                         <span className="text-sm font-bold opacity-70">Country</span>
-                         <span className="flex-1 text-xl">{card.country || ' '}</span>
+                       <div className="flex flex-col border-b border-gray-400 pb-1">
+                         <span className="text-xs font-bold opacity-70">Country</span>
+                         <span className="w-full text-lg whitespace-nowrap overflow-hidden text-ellipsis">{card.country || ' '}</span>
                        </div>
-                       <div className="flex items-end gap-2 border-b border-gray-400 pb-1">
-                         <span className="text-sm font-bold opacity-70">Grapes</span>
-                         <span className="flex-1 text-xl">{card.grapes || ' '}</span>
+                       <div className="flex flex-col border-b border-gray-400 pb-1">
+                         <span className="text-xs font-bold opacity-70">Grapes</span>
+                         <span className="w-full text-lg whitespace-nowrap overflow-hidden text-ellipsis">{card.grapes || ' '}</span>
                        </div>
                      </div>
 
@@ -306,15 +306,15 @@ function App() {
                        </div>
                      </div>
 
-                     <div>
+                      <div>
                        <span className="text-sm font-bold opacity-70 block mb-2">Tastes</span>
-                       <div className="grid grid-cols-4 gap-x-2 gap-y-4 text-center text-sm">
+                       <div className="grid grid-cols-4 gap-x-1 gap-y-3 text-center text-xs">
                          {DEFAULT_TASTES.map(taste => {
                            const level = card.tastes?.[taste] || 0;
                            return (
                              <div
                                key={taste}
-                               className={`py-1 px-1 taste-oval ${
+                               className={`py-1 px-0.5 taste-oval ${
                                  level === 0 ? 'border border-transparent opacity-50' :
                                  level === 1 ? 'border-2 border-dashed border-gray-700' :
                                  'border-2 border-solid border-gray-800 font-bold'

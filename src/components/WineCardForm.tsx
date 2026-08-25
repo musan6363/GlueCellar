@@ -134,34 +134,34 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
       <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#eaddcf] opacity-80 rotate-[-2deg]"></div>
 
       {/* ヘッダー情報 */}
-      <div className="flex flex-col gap-3">
-        <div className="flex items-end gap-2 border-b border-gray-400 pb-1">
-          <span className="text-sm font-bold opacity-70">Name</span>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-col border-b border-gray-400 pb-1">
+          <span className="text-xs font-bold opacity-70">Name</span>
           <input 
             type="text" 
-            className="flex-1 bg-transparent outline-none text-3xl font-bold"
+            className="w-full bg-transparent outline-none text-2xl"
             placeholder="ワイン名"
             value={card.name}
             onChange={e => setCard({...card, name: e.target.value})}
           />
         </div>
         
-        <div className="flex items-end gap-2 border-b border-gray-400 pb-1">
-          <span className="text-sm font-bold opacity-70">Country</span>
+        <div className="flex flex-col border-b border-gray-400 pb-1">
+          <span className="text-xs font-bold opacity-70">Country</span>
           <input 
             type="text" 
-            className="flex-1 bg-transparent outline-none text-xl"
+            className="w-full bg-transparent outline-none text-lg"
             placeholder="原産国"
             value={card.country}
             onChange={e => setCard({...card, country: e.target.value})}
           />
         </div>
 
-        <div className="flex items-end gap-2 border-b border-gray-400 pb-1">
-          <span className="text-sm font-bold opacity-70">Grapes</span>
+        <div className="flex flex-col border-b border-gray-400 pb-1">
+          <span className="text-xs font-bold opacity-70">Grapes</span>
           <input 
             type="text" 
-            className="flex-1 bg-transparent outline-none text-xl"
+            className="w-full bg-transparent outline-none text-lg"
             placeholder="ブドウ品種"
             value={card.grapes}
             onChange={e => setCard({...card, grapes: e.target.value})}
@@ -170,9 +170,9 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
 
         {/* JANコードが登録されている場合のみ表示 */}
         {card.janCode && (
-          <div className="flex items-end gap-2 border-b border-gray-400 pb-1">
-            <span className="text-sm font-bold opacity-70">JAN</span>
-            <span className="flex-1 bg-transparent outline-none text-lg font-mono tracking-widest">{card.janCode}</span>
+          <div className="flex flex-col border-b border-gray-400 pb-1">
+            <span className="text-xs font-bold opacity-70">JAN</span>
+            <span className="w-full bg-transparent outline-none text-base font-mono tracking-widest">{card.janCode}</span>
           </div>
         )}
       </div>
@@ -210,14 +210,14 @@ export const WineCardForm: React.FC<Props> = ({ initialData, onSave, onDelete, o
       {/* Tastes */}
       <div>
         <span className="text-sm font-bold opacity-70 block mb-2">Tastes</span>
-        <div className="grid grid-cols-4 gap-x-2 gap-y-4 text-center text-sm">
+        <div className="grid grid-cols-4 gap-x-1 gap-y-3 text-center text-xs">
           {DEFAULT_TASTES.map(taste => {
             const level = card.tastes?.[taste] || 0;
             return (
               <button
                 key={taste}
                 onClick={() => handleTasteToggle(taste)}
-                className={`py-1 px-1 taste-oval transition-all ${
+                className={`py-1 px-0.5 taste-oval transition-all ${
                   level === 0 ? 'border border-transparent' :
                   level === 1 ? 'border-2 border-dashed border-gray-700' :
                   'border-2 border-solid border-gray-800 font-bold'
